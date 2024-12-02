@@ -1,0 +1,8 @@
+flask 
+threading 
+platform
+socket
+hashlib
+base64
+pycryptodome
+datetime
