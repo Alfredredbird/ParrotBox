@@ -20,8 +20,18 @@ There Is A Lot Lol
 - pycryptodome
 - datetime
 
+# 🍚 Supported Hashes
+ ### Encryption
+  - MD5
+  - BASE64
+ ### Decryption
+  - MD5
+  - MD4
+  - BASE64
+  - HEX 
+  More to come...
 
- # 💻 Tested OS
+# 💻 Tested OS
 
 <table>
     <tr>
