@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-align: center;
+            background-color: #282c34;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            position: relative; /* Allow child elements to use absolute positioning */
+            background-color: #20232a;
+            margin: 10px 0;
+            padding: 60px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 900px;
+        }
+        
+        .editB {
+            position: absolute; /* Position relative to the card */
+            top: 10px; /* Adjust the vertical position */
+            right: 10px; /* Adjust the horizontal position */
+            width: 25px;
+            height: auto;
+            cursor: pointer;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            color: white;
+        }
+        table th, table td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #444;
+        }
+        button {
+            background-color: #61dafb;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            color: black;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #21a1f1;
+        }
+        a {
+            color: #61dafb;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <div class="container">
+        <div class="card">
+            <h2>Device Information</h2>
+            <table>
+                {% for key, value in device_info.items() %}
+                    <tr>
+                        <th>{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="card">
+            <h2>API Tokens</h2>
+            <form method="post">
+                <button type="submit" name="generate_key">Generate API Key</button>
+            </form>
+            {% if keys %}
+                <table>
+                    <tr>
+                        <th>API Token</th>
+                        <th>Created At</th>
+                        <th>Device</th>
+                    </tr>
+                    {% for key in keys %}
+                        <tr>
+                            <td>{{ key.key }}</td>
+                            <td>{{ key.created_at }}</td>
+                            <td>{{ key.device['Hostname'] }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('delete_key', key=key.key) }}">
+                                    <button class="delete" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No API tokens generated yet.</p>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h2>Jobs</h2>
+            <input class="editB" type="image" src="/static/cog.png" alt="Edit" onclick="toggleEditMode()">
+            <div class="container">
+                <button onclick="window.location.href='{{ url_for('new_job') }}'">New Job</button>
+                <!-- Existing dashboard content -->
+            </div>
+            
+            {% if Jobs %}
+                <table>
+                    <tr>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th>Created At</th>
+                        <th>Hash</th>
+                        <th>Value</h>
+                        <th>Authenticated</th>
+                        <th>Request</th>
+                        <th>ID</th>
+                    </tr>
+                    {% for Job in Jobs %}
+<tr>
+    <td><b>{{ Job.status }}</b></td>
+    <td>{{ Job.type }}</td>
+    <td>{{ Job.created_at }}</td>
+    <td>
+        <button onclick="copyToClipboard('{{ Job.hash }}')">Copy</button>
+    </td>
+    <td>{{ Job.value }}</td>
+    <td>{{ Job.auth }}</td>
+    <td>{{ Job.ReqDec }}</td>
+    <td>{{ Job.id }}</td>
+    <td>
+        <td>
+            <!-- Actions will be updated dynamically -->
+            <button class="action-btn" data-id="{{ Job.id }}" onclick="runJob('{{ Job.id }}')">Run</button>
+        </td>
+    </td>
+</tr>
+{% endfor %}
+
+                </table>
+            {% else %}
+                <p>No jobs pending yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Hashes</h2>
+            
+            
+            {% if HashList %}
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Created At</th>
+                        <th>Hash</th>
+                        <th>Authenticated</th>
+                        <th>ID</th>
+                    </tr>
+                    {% for Hash in HashList %}
+<tr>
+    <td>{{ Hash.type }}</td>
+    <td>{{ Hash.created_at }}</td>
+    <td>
+        <button onclick="copyToClipboard('{{ Hash.hash }}')">Copy</button>
+    </td>
+    <td>{{ Hash.auth }}</td>
+    <td>{{ Hash.id }}</td>
+</tr>
+{% endfor %}
+
+                </table>
+            {% else %}
+                <p>No hashes to view yet.</p>
+            {% endif %}
+        </div>
+        <div class="card">
+            <h2>Histroy</h2>
+            
+            
+            {% if HistroyList %}
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Timestamp</th>
+                        <th>IP</th>
+                        <th>Authenticated</th>
+                        <th>Description</th>
+                        <th>ID</th>
+                    </tr>
+                    {% for Histroy in HistroyList %}
+<tr>
+    <td>{{ Histroy.type }}</td>
+    <td>{{ Histroy.timestamp }}</td>
+    <td>{{ Histroy.ip }}</td>
+    <td>{{ Histroy.auth }}</td>
+    <td>{{ Histroy.description }}</td>
+    <td>{{ Histroy.id }}</td>
+</tr>
+{% endfor %}
+
+                </table>
+            {% else %}
+                <p>No history to view yet.</p>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    
+    <script>
+    function addJobCard() {
+        const jobContainer = document.getElementById("jobContainer");
+
+        // Create a card element
+        const card = document.createElement("div");
+        card.classList.add("card");
+
+        // Add form content to the card
+        card.innerHTML = `
+            <form onsubmit="saveJob(this); return false;">
+                <h3>New Job</h3>
+                <label for="hash">Hash:</label><br>
+                <input type="text" name="hash" required placeholder="Enter the hash"><br><br>
+                <label for="type">Hash Type:</label><br>
+                <select name="type" required>
+                    <option value="md5">MD5</option>
+                    <option value="md4">MD4</option>
+                    <option value="sha256">SHA-256</option>
+                </select><br><br>
+                <button type="submit">Save Job</button>
+            </form>
+        `;
+
+        // Append the card to the container
+        jobContainer.appendChild(card);
+    }
+
+    async function saveJob(form) {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch("/save_job", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert("Job saved successfully!");
+                location.reload(); // Reload to update the jobs list
+            } else {
+                const errorData = await response.json();
+                alert("Error: " + errorData.error);
+            }
+        } catch (error) {
+            console.error("Error saving job:", error);
+            alert("Failed to save job. Please try again.");
+        }
+    }
+</script>
+<script>
+    let editMode = false; // Tracks whether we're in "Edit" mode
+
+    function toggleEditMode() {
+        editMode = !editMode; // Toggle edit mode
+        const actionButtons = document.querySelectorAll('.action-btn');
+
+        actionButtons.forEach(button => {
+            const jobId = button.getAttribute('data-id');
+            if (editMode) {
+                // Show Delete button in Edit mode
+                button.textContent = "Delete";
+                button.onclick = () => deleteJob(jobId);
+            } else {
+                // Show Run button in Run mode
+                button.textContent = "Run";
+
+                button.onclick = () => runJob(jobId);
+            }
+        });
+    }
+
+    async function runJob(jobId) {
+        try {
+            const response = await fetch(`/run_job/${jobId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            alert(data.message || 'Job started successfully!');
+            location.reload();
+        } catch (error) {
+            console.error('Error running job:', error);
+            alert('Failed to run the job.');
+        }
+    }
+
+    function deleteJob(jobId) {
+        if (confirm("Are you sure you want to delete this job?")) {
+            fetch(`/delete_job/${jobId}`, { method: "POST" })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Job deleted successfully!");
+                        location.reload();
+                    } else {
+                        alert("Failed to delete job.");
+                    }
+                })
+                .catch(err => console.error("Error deleting job:", err));
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Hash copied to clipboard!");
+        }).catch(err => {
+            console.error("Failed to copy text: ", err);
+        });
+    }
+</script>
+</body>
+</html>

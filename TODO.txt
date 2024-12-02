@@ -1,0 +1,7 @@
+Fix the copy hash button.
+
+Add callbacks and security checks to the submit and hash methods.
+
+Accept more decryption/encryption typs.
+
+Create funcs to reduce the amount of repeated code.

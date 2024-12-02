@@ -1,0 +1,13 @@
+# test data requests to submit data to the box
+ 
+ curl -X POST http://127.0.0.1:5000/api/submit \
+-H "Content-Type: application/json" \
+-d '{"type": "base64", "hash": "cGFycm90", "api_key":"parrot"}'
+
+ curl -X POST http://127.0.0.1:5000/api/submit \
+-H "Content-Type: application/json" \
+-d '{"type": "md5", "hash": "c81e728d9d4c2f636f067f89cc14862c", "api_key":"parrot", "ReqDec": "true"}'
+
+ curl -X POST http://127.0.0.1:5000/api/hash \
+-H "Content-Type: application/json" \
+-d '{"type": "md5", "hash": "c81e728d9d4c2f636f067f89cc14862c", "api_key":"parrot", "ReqDec": "true"}'
