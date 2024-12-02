@@ -1,7 +1,10 @@
 # 🔍 Overview
 
  ParrotBox is a prototype script that can turn any device into a Network Accessed Decryption Device.
- ParrotBox is still in beta and is free and open source. A better version of ParrotBox's README file will come soon.
+ ParrotBox is still in beta and is free and open source. ParrotBox works on a request bassed system with a dashboard. A better version of ParrotBox's README file will come soon.
+ 
+ Examples on how to submit requests to ParrotBox is in `reqtest.txt`. The dashboard can be accesses via the machines `ip` followed by the port `5000`. Default credentials are in `config.json`.
+ 
 
 # 📦 Installation
     git clone https://github.com/alfredredbird/ParrotBox.git
